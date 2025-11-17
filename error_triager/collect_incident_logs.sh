@@ -23,8 +23,8 @@ INCIDENT_FILE="$1"
 OUTPUT_FILE="${2:-incident_logs_$(date +%Y%m%d_%H%M%S).json}"
 
 # Configuration via environment variables
-MINUTES_BEFORE="${MINUTES_BEFORE:-5}"
-MINUTES_AFTER="${MINUTES_AFTER:-5}"
+MINUTES_BEFORE="${MINUTES_BEFORE:-1}"
+MINUTES_AFTER="${MINUTES_AFTER:-1}"
 MAX_ENTRIES="${MAX_ENTRIES:-10000}"
 SHOW_STATS="${SHOW_STATS:-true}"
 

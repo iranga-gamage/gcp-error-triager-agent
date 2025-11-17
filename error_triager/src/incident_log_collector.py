@@ -63,8 +63,8 @@ class IncidentLogCollector:
         return self.incident_data
 
     def parse_incident_time_range(self,
-                                   minutes_before: int = 5,
-                                   minutes_after: int = 5) -> tuple[datetime, Optional[datetime]]:
+                                   minutes_before: int = 1,
+                                   minutes_after: int = 1) -> tuple[datetime, Optional[datetime]]:
         """
         Parse incident time range with buffers
 
@@ -149,8 +149,8 @@ class IncidentLogCollector:
         return '\n'.join(filters)
 
     def collect_logs(self,
-                     minutes_before: int = 5,
-                     minutes_after: int = 5,
+                     minutes_before: int = 1,
+                     minutes_after: int = 1,
                      max_entries: int = 10000,
                      include_all_severities: bool = True) -> List[Dict[str, Any]]:
         """
@@ -392,7 +392,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Collect logs with default 5-minute buffers
+  # Collect logs with default 1-minute buffers
   python incident_log_collector.py --incident incident.json --output logs.json
 
   # Collect logs with 10 minutes before and 2 minutes after
@@ -423,10 +423,10 @@ Examples:
                        help='Output JSON file path')
     parser.add_argument('--project', '-p',
                        help='GCP Project ID (optional, will be extracted from incident)')
-    parser.add_argument('--minutes-before', '-b', type=int, default=5,
-                       help='Minutes to look back before incident start (default: 5)')
-    parser.add_argument('--minutes-after', '-a', type=int, default=5,
-                       help='Minutes to look ahead after incident end (default: 5)')
+    parser.add_argument('--minutes-before', '-b', type=int, default=1,
+                       help='Minutes to look back before incident start (default: 1)')
+    parser.add_argument('--minutes-after', '-a', type=int, default=1,
+                       help='Minutes to look ahead after incident end (default: 1)')
     parser.add_argument('--max-entries', '-m', type=int, default=10000,
                        help='Maximum number of log entries to collect (default: 10000)')
     parser.add_argument('--errors-only', '-e', action='store_true',
