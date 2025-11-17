@@ -1,0 +1,23 @@
+[project]
+name = "gcp-error-triager"
+version = "0.1.0"
+description = "Tool to query and analyze GCP logs for incident triage"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "google-cloud-logging>=3.12.0",
+    "google-cloud-error-reporting>=1.10.0",
+    "google-cloud-monitoring>=2.23.0",
+    "tabulate>=0.9.0",
+    "python-dateutil>=2.9.0",
+]
+
+[project.scripts]
+gcp-triage = "src.triage:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]

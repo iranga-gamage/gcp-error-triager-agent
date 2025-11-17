@@ -1,0 +1,58 @@
+{
+  "incident": {
+    "condition": {
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "perSeriesAligner": "ALIGN_DELTA"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "duration": "0s",
+        "filter": "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"error-simulator\" AND metric.type = \"run.googleapis.com/request_count\" AND metric.labels.response_code_class = \"5xx\""
+      },
+      "displayName": "Any 5xx error detected",
+      "name": "projects/prj-croud-dev-dst-sandbox/alertPolicies/1625606300149248055/conditions/1625606300149249556"
+    },
+    "condition_name": "Any 5xx error detected",
+    "ended_at": null,
+    "incident_id": "0.nzkl1309yzci",
+    "metadata": {
+      "system_labels": {},
+      "user_labels": {}
+    },
+    "metric": {
+      "displayName": "Request Count",
+      "labels": {
+        "response_code": "500",
+        "response_code_class": "5xx"
+      },
+      "type": "run.googleapis.com/request_count"
+    },
+    "observed_value": "10.000",
+    "policy_name": "Error Simulator - Any Error Alert",
+    "resource": {
+      "labels": {
+        "configuration_name": "error-simulator",
+        "location": "us-central1",
+        "project_id": "prj-croud-dev-dst-sandbox",
+        "revision_name": "error-simulator-00002-5gc",
+        "service_name": "error-simulator"
+      },
+      "type": "cloud_run_revision"
+    },
+    "resource_id": "",
+    "resource_name": "prj-croud-dev-dst-sandbox Cloud Run Revision labels {project_id=prj-croud-dev-dst-sandbox, service_name=error-simulator, revision_name=error-simulator-00002-5gc, location=us-central1, configuration_name=error-simulator}",
+    "resource_type_display_name": "Cloud Run Revision",
+    "scoping_project_id": "prj-croud-dev-dst-sandbox",
+    "scoping_project_number": 620389686939,
+    "severity": "No severity",
+    "started_at": 1763211782,
+    "state": "open",
+    "summary": "Request Count for prj-croud-dev-dst-sandbox Cloud Run Revision labels {project_id=prj-croud-dev-dst-sandbox, service_name=error-simulator, revision_name=error-simulator-00002-5gc, location=us-central1, configuration_name=error-simulator} with metric labels {response_code=500, response_code_class=5xx} is above the threshold of 0.000 with a value of 10.000.",
+    "threshold_value": "0",
+    "url": "https://console.cloud.google.com/monitoring/alerting/alerts/0.nzkl1309yzci?channelType=cloud-pubsub&project=prj-croud-dev-dst-sandbox"
+  },
+  "version": "1.2"
+}
