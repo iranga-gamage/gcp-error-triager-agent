@@ -1,0 +1,43 @@
+# GCP Project Configuration
+project_id = "your-gcp-project-id"
+region     = "us-central1"
+
+# Service Configuration
+service_name         = "gcp-log-collector-mcp"
+service_account_name = "mcp-log-collector"
+
+# Scaling Configuration
+min_instances = 0  # 0 for scale-to-zero
+max_instances = 10
+
+# Resource Limits
+cpu_limit            = "1"     # CPU units
+memory_limit         = "512Mi" # Memory limit
+cpu_always_allocated = false   # false for scale-to-zero
+
+# Request Configuration
+request_timeout = "300s" # 5 minutes
+
+# Access Control
+# Set to true for public access, false for authenticated access only
+allow_unauthenticated = false
+
+# If allow_unauthenticated is false, specify authorized members
+authorized_members = [
+  # "user:alice@example.com",
+  # "serviceAccount:client-sa@project.iam.gserviceaccount.com",
+]
+
+# Ingress Configuration
+# Options:
+# - INGRESS_TRAFFIC_ALL: Allow all traffic (default)
+# - INGRESS_TRAFFIC_INTERNAL_ONLY: Only allow internal VPC traffic
+# - INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER: Only allow traffic from load balancer
+ingress_mode = "INGRESS_TRAFFIC_ALL"
+
+# Labels
+labels = {
+  application = "mcp-server"
+  component   = "log-collector"
+  environment = "production"
+}

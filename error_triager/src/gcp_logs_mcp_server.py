@@ -3,16 +3,18 @@
 MCP Server for GCP Log Collection
 
 Provides tools to collect and analyze GCP logs through the Model Context Protocol.
+Deployable on Cloud Run with HTTP transport.
 """
 
-import json
+import asyncio
+import logging
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from mcp.server import Server
-from mcp.types import Tool, TextContent
+from fastmcp import FastMCP
 
 # Handle imports for both module and script execution
 try:
@@ -22,9 +24,12 @@ except ImportError:
     sys.path.insert(0, str(Path(__file__).parent))
     from gcp_log_collector import LogCollector
 
+# Setup logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.INFO)
 
-# Initialize MCP server
-app = Server("gcp-log-collector")
+# Initialize FastMCP server
+mcp = FastMCP("gcp-log-collector")
 
 
 def collect_logs(
@@ -89,100 +94,61 @@ def collect_logs(
     }
 
 
-@app.list_tools()
-async def list_tools() -> list[Tool]:
-    """List available MCP tools"""
-    return [
-        Tool(
-            name="collect_gcp_logs",
-            description="Collect GCP logs for a specific resource and time range. "
-                       "Useful for investigating incidents, errors, and analyzing application behavior.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "project_id": {
-                        "type": "string",
-                        "description": "GCP project ID to query logs from"
-                    },
-                    "resource_type": {
-                        "type": "string",
-                        "description": "GCP resource type (e.g., 'cloud_run_revision', 'gce_instance', 'k8s_container')"
-                    },
-                    "resource_labels": {
-                        "type": "object",
-                        "description": "Dictionary of resource labels to filter by (e.g., {'service_name': 'my-service', 'location': 'us-central1'})",
-                        "additionalProperties": {"type": "string"}
-                    },
-                    "start_time": {
-                        "type": "string",
-                        "description": "Start timestamp in ISO 8601 format (e.g., '2025-11-17T10:00:00Z')"
-                    },
-                    "end_time": {
-                        "type": "string",
-                        "description": "End timestamp in ISO 8601 format (e.g., '2025-11-17T11:00:00Z')"
-                    },
-                    "include_all_severities": {
-                        "type": "boolean",
-                        "description": "Include all severity levels. If false, only ERROR and above (default: true)",
-                        "default": True
-                    },
-                    "max_entries": {
-                        "type": "integer",
-                        "description": "Maximum number of log entries to collect (default: 10000)",
-                        "default": 10000
-                    }
-                },
-                "required": ["project_id", "resource_type", "resource_labels", "start_time", "end_time"]
-            }
-        )
-    ]
+@mcp.tool()
+def collect_gcp_logs(
+    project_id: str,
+    resource_type: str,
+    resource_labels: dict[str, str],
+    start_time: str,
+    end_time: str,
+    include_all_severities: bool = True,
+    max_entries: int = 10000
+) -> dict[str, Any]:
+    """
+    Collect GCP logs for a specific resource and time range.
+    Useful for investigating incidents, errors, and analyzing application behavior.
 
+    Args:
+        project_id: GCP project ID to query logs from
+        resource_type: GCP resource type (e.g., 'cloud_run_revision', 'gce_instance', 'k8s_container')
+        resource_labels: Dictionary of resource labels to filter by (e.g., {'service_name': 'my-service', 'location': 'us-central1'})
+        start_time: Start timestamp in ISO 8601 format (e.g., '2025-11-17T10:00:00Z')
+        end_time: End timestamp in ISO 8601 format (e.g., '2025-11-17T11:00:00Z')
+        include_all_severities: Include all severity levels. If false, only ERROR and above (default: true)
+        max_entries: Maximum number of log entries to collect (default: 10000)
 
-@app.call_tool()
-async def call_tool(name: str, arguments: Any) -> list[TextContent]:
-    """Handle tool calls"""
-    if name != "collect_gcp_logs":
-        raise ValueError(f"Unknown tool: {name}")
+    Returns:
+        Dictionary with logs and metadata
+    """
+    logger.info(f">>> 🛠️ Tool: 'collect_gcp_logs' called for project '{project_id}'")
 
     try:
-        # Collect logs
+        # Collect logs using the original function
         result = collect_logs(
-            project_id=arguments["project_id"],
-            resource_type=arguments["resource_type"],
-            resource_labels=arguments["resource_labels"],
-            start_time=arguments["start_time"],
-            end_time=arguments["end_time"],
-            include_all_severities=arguments.get("include_all_severities", True),
-            max_entries=arguments.get("max_entries", 10000)
+            project_id=project_id,
+            resource_type=resource_type,
+            resource_labels=resource_labels,
+            start_time=start_time,
+            end_time=end_time,
+            include_all_severities=include_all_severities,
+            max_entries=max_entries
         )
-
-        return [TextContent(
-            type="text",
-            text=json.dumps(result, indent=2, default=str)
-        )]
-
+        return result
     except Exception as e:
-        return [TextContent(
-            type="text",
-            text=json.dumps({
-                "error": str(e),
-                "type": type(e).__name__
-            }, indent=2)
-        )]
-
-
-async def main():
-    """Run the MCP server"""
-    from mcp.server.stdio import stdio_server
-
-    async with stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            app.create_initialization_options()
-        )
+        logger.error(f"Error collecting logs: {e}")
+        return {
+            "error": str(e),
+            "type": type(e).__name__
+        }
 
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    port = int(os.getenv("PORT", 8080))
+    logger.info(f"🚀 GCP Log Collector MCP server started on port {port}")
+    asyncio.run(
+        mcp.run_async(
+            transport="http",
+            host="0.0.0.0",
+            port=port,
+        )
+    )
