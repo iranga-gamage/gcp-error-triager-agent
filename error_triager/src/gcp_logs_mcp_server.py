@@ -6,13 +6,21 @@ Provides tools to collect and analyze GCP logs through the Model Context Protoco
 """
 
 import json
+import sys
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from mcp.server import Server
 from mcp.types import Tool, TextContent
 
-from .gcp_log_collector import LogCollector
+# Handle imports for both module and script execution
+try:
+    from .gcp_log_collector import LogCollector
+except ImportError:
+    # Add parent directory to path for script execution
+    sys.path.insert(0, str(Path(__file__).parent))
+    from gcp_log_collector import LogCollector
 
 
 # Initialize MCP server
