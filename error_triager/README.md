@@ -415,7 +415,7 @@ pytest tests/
 
 ### Code Structure
 ```
-error_trager/
+error_triager/
 ├── src/
 │   ├── __init__.py
 │   └── triage.py          # Main triager implementation

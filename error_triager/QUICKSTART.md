@@ -5,8 +5,8 @@ Get started with GCP Error Triager in 5 minutes!
 ## 1. Install Dependencies
 
 ```bash
-# Make sure you're in the error_trager directory
-cd error_trager
+# Make sure you're in the error_triager directory
+cd error_triager
 
 # Install with uv
 uv pip install -e .
